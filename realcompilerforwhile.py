@@ -2,6 +2,11 @@
 
 from typing import List
 
+B_R = "banco_registradores.txt"
+EN = "entrada.txt"
+U_C = "unidade_controle.txt"
+M_R = "memoria_ram.txt"
+
 def add(a,b): return a+b
 def sub(a,b): return a-b
 def anD(a,b): return a & b
@@ -28,35 +33,42 @@ tupleRegisters = (
         "R2: 0\n",
         "R3: 0\n",
         )
+class IOFiles:
+    def __init__(self, name: str):
+        self.name = name
 
-class Registers: #Class que opera sobre os registradores
-    def __init__(self, reg):
-        self.reg = reg
+    def readTxt(self): #Retorna conteúdo do arquivo em str
+    #FAZER TRATAMENTO DE ERROS
+        with open(self.name) as f:
+            return f.readlines()
+
+    def writeTxt(self, value: List):
+        with open(self.name,"w+") as f:
+            f.writelines(value)
+
+
+class GSRegMem(IOFiles): #Class que opera sobre os registradores e ram
+    def __init__(self, name: str, adr: int):
+        self.adr = adr
+
+        super().__init__(name)
          
-    def getReg(self):
-        auxTxt = readTxt("banco_registradores.txt")
+    def getRegMem(self):
+        auxTxt = self.readTxt()
         if auxTxt:
-            return int(auxTxt[self.reg][4:])
+            return int(auxTxt[self.adr][4:])
         else:
             print("Banco vazio!")
             return False
 
-    def setReg(self,value):
-        auxTxt = readTxt("banco_registradores.txt")
+    def setRegMem(self,value):
+        auxTxt = self.readTxt()
         if not auxTxt:
             auxTxt = list(tupleRegisters)
-        auxTxt[self.reg] = auxTxt[self.reg][:4] + str(value)  + auxTxt[self.reg][-1:]
-        writeTxt("banco_registradores.txt", auxTxt)
+
+        auxTxt[self.adr] = auxTxt[self.adr][:4] + str(value)  + auxTxt[self.adr][-1:]
+        self.writeTxt(auxTxt)
         
-def readTxt(name: str): #Retorna conteúdo do arquivo em str
-#FAZER TRATAMENTO DE ERROS
-    with open(name) as f:
-        return f.readlines()
-
-def writeTxt(name: str, value: List):
-    with open(name,"w+") as f:
-        f.writelines(value)
-
 def getInstructions(inputTxt: List[str]): #Splita as instruções em uma lista
     instructionsInput = inputTxt.splitlines()
     return instructionsInput
@@ -65,5 +77,5 @@ def execInstructionAL(instructionLine: str): #Executa determinada instrução da
     instructionList = instructionLine.split(" ")
     return dictInstructions[instructionList[0]](int(instructionList[1]),int(instructionList[2]))
 
-reg0 = Registers(0)    
-reg0.setReg(5)
+reg0 = GSRegMem(B_R,1)    
+reg0.setRegMem(99999)
