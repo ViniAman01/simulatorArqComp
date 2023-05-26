@@ -1,18 +1,18 @@
 #!/bin/python3
 
-from typing import List
+from typing import List #Permite declaração de tipagem de listas
 
-B_R = "banco_registradores.txt"
+B_R = "banco_registradores.txt" #Constantes para os nomes dos arquivos
 EN = "entrada.txt"
 U_C = "unidade_controle.txt"
 M_R = "memoria_ram.txt"
 
-def add(a,b): return a+b
+def add(a,b): return a+b #Funções aritmeticas/logicas para executar instruções
 def sub(a,b): return a-b
 def anD(a,b): return a & b
 def oR(a,b): return a | b
 
-dictInstructions = {
+dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         #"LOAD": load,
         #"STORE": store,
         #"MOVE": move,
@@ -27,13 +27,14 @@ dictInstructions = {
         #"HALT": halt
         }
 
-tupleRegisters = (
+tupleRegisters = ( #Tupla contendo configuração inicial dos registradores
         "R0: 0\n",
         "R1: 0\n",
         "R2: 0\n",
         "R3: 0\n",
         )
-class IOFiles:
+
+class IOFiles: #Classe para manipulação de arquivos
     def __init__(self, name: str):
         self.name = name
 
@@ -47,7 +48,7 @@ class IOFiles:
             f.writelines(value)
 
 
-class GSRegMem(IOFiles): #Class que opera sobre os registradores e ram
+class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda IOFiles
     def __init__(self, name: str, adr: int):
         self.adr = adr
 
@@ -56,17 +57,17 @@ class GSRegMem(IOFiles): #Class que opera sobre os registradores e ram
     def getRegMem(self):
         auxTxt = self.readTxt()
         if auxTxt:
-            return int(auxTxt[self.adr][4:])
+            return int(auxTxt[self.adr][4:]) #Retorna inteiro referente ao conteudo do endereço(adr)
         else:
             print("Banco vazio!")
             return False
 
     def setRegMem(self,value):
-        auxTxt = self.readTxt()
-        if not auxTxt:
+        auxTxt = self.readTxt() #Pega atual estado dos registradores
+        if not auxTxt: #Caso o arquivo esteja vazio, a tupla contendo os registrados é usada
             auxTxt = list(tupleRegisters)
 
-        auxTxt[self.adr] = auxTxt[self.adr][:4] + str(value)  + auxTxt[self.adr][-1:]
+        auxTxt[self.adr] = auxTxt[self.adr][:4] + str(value)  + auxTxt[self.adr][-1:] #Concatena o valor desejado com o começo e fim da linha do reg/mem
         self.writeTxt(auxTxt)
         
 def getInstructions(inputTxt: List[str]): #Splita as instruções em uma lista
