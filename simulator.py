@@ -11,10 +11,18 @@ def add(a,b): return a+b #Funções aritmeticas/logicas para executar instruçõ
 def sub(a,b): return a-b
 def anD(a,b): return a & b
 def oR(a,b): return a | b
+def load(regX,memX): 
+    reg = GSRegMem(B_R,regX)
+    mem = GSRegMem(M_R,memX) 
+    reg.setRegMem(mem.getRegMem())
+def store(memX,regX):
+    mem = GSRegMem(M_R,memX) 
+    reg = GSRegMem(B_R,regX)
+    mem.setRegMem(reg.getRegMem())
 
 dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         #"LOAD": load,
-        #"STORE": store,
+        "STORE": store,
         #"MOVE": move,
         "ADD": add,
         "SUB": sub,
@@ -82,10 +90,12 @@ def execInstructionAL(instructionLine: str):    #Executa determinada instrução
 
     if numTokens == 3:  #Com 3 parametros sabe-se que será executado uma instrução lógica/aritmética
         function = dictInstructions[instructionList[0]]     #O primeiro token define a função, que será buscada no dicionario de instruções
-        rA = GSRegMem(B_R,int(instructionList[1][1]))   #Criamos um objeto referente ao registrador que receberá o valor da operação
-        rB = GSRegMem(B_R,int(instructionList[2][1])).getRegMem()   #Como o segundo e terceiro regs contem os valore que serão operados, buscamos seus valores
-        rC = GSRegMem(B_R,int(instructionList[3][1])).getRegMem()
+        rA = GSRegMem(B_R, int(instructionList[1][1]))   #Criamos um objeto referente ao registrador que receberá o valor da operação
+        rB = GSRegMem(B_R, int(instructionList[2][1])).getRegMem()   #Como o segundo e terceiro regs contem os valore que serão operados, buscamos seus valores
+        rC = GSRegMem(B_R, int(instructionList[3][1])).getRegMem()
 
         rA.setRegMem(function(rB,rC))   #Seta o valor no arquivo B_R referente a função executada
 
-
+    if numTokens == 2: 
+        function = dictInstructions[instructionList[0]]
+        function(int(instructionList[1][1]), int(instructionList[2][1]))
