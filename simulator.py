@@ -21,7 +21,7 @@ def store(memX,regX):
     mem.setRegMem(reg.getRegMem())
 
 dictInstructions = { #Dicionario contento as intruções a serem interpretadas
-        #"LOAD": load,
+        "LOAD": load,
         "STORE": store,
         #"MOVE": move,
         "ADD": add,
