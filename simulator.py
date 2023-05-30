@@ -42,6 +42,7 @@ tupleRegisters = ( #Tupla contendo configuração inicial dos registradores
         "R3: 0\n",
         )
 
+
 class IOFiles: #Classe para manipulação de arquivos
     def __init__(self, name: str):
         self.name = name
@@ -55,6 +56,12 @@ class IOFiles: #Classe para manipulação de arquivos
         with open(self.name,"w+") as f:
             f.writelines(value)
 
+startM_R = IOFiles(M_R)
+memList = []
+for i in range(33):
+    memList.append(str(i)+": \n")
+
+startM_R.writeTxt(memList)
 
 class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda IOFiles
     def __init__(self, name: str, adr: int): #Nome do arquivo + endereço reg/ram
@@ -78,6 +85,12 @@ class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda I
         auxTxt[self.adr] = auxTxt[self.adr][:4] + str(value)  + auxTxt[self.adr][-1:] #Concatena o valor desejado com o começo e fim da linha do reg/mem
         self.writeTxt(auxTxt)
 
+def getAdr(name: str):
+    if name.count("R"):
+        return int(name[1])
+    else:
+        return int(name)
+
 def getInstructions(inputTxt: List[str]): #Splita as instruções em uma lista
     instructionsInput = inputTxt.splitlines()
     return instructionsInput
@@ -98,4 +111,7 @@ def execInstructionAL(instructionLine: str):    #Executa determinada instrução
 
     if numTokens == 2: 
         function = dictInstructions[instructionList[0]]
-        function(int(instructionList[1][1]), int(instructionList[2][1]))
+        function(getAdr(instructionList[1]), getAdr(instructionList[2]))
+
+txt = IOFiles(EN).readTxt()
+execInstructionAL(txt[0])
