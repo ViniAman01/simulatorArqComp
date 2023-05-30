@@ -49,7 +49,7 @@ class IOFiles: #Classe para manipulação de arquivos
 
 
 class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda IOFiles
-    def __init__(self, name: str, adr: int):
+    def __init__(self, name: str, adr: int): #Nome do arquivo + endereço reg/ram
         self.adr = adr
 
         super().__init__(name)
@@ -69,14 +69,23 @@ class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda I
 
         auxTxt[self.adr] = auxTxt[self.adr][:4] + str(value)  + auxTxt[self.adr][-1:] #Concatena o valor desejado com o começo e fim da linha do reg/mem
         self.writeTxt(auxTxt)
-        
+
 def getInstructions(inputTxt: List[str]): #Splita as instruções em uma lista
     instructionsInput = inputTxt.splitlines()
     return instructionsInput
 
-def execInstructionAL(instructionLine: str): #Executa determinada instrução da ALU contendo dois valores
-    instructionList = instructionLine.split(" ")
-    return dictInstructions[instructionList[0]](int(instructionList[1]),int(instructionList[2]))
+def execInstructionAL(instructionLine: str):    #Executa determinada instrução da ALU contendo dois valores
+    instructionList = instructionLine.split(" ")    #Divide a linha em vários tokens
+    numTokens = len(instructionList)-1      #Contabiliza o número de parametros
 
-reg0 = GSRegMem(B_R,1)    
-reg0.setRegMem(99999)
+    #A partir daqui teremos diferentes grupos de instruções sendo executados de acordo com seu número de parametros
+
+    if numTokens == 3:  #Com 3 parametros sabe-se que será executado uma instrução lógica/aritmética
+        function = dictInstructions[instructionList[0]]     #O primeiro token define a função, que será buscada no dicionario de instruções
+        rA = GSRegMem(B_R,int(instructionList[1][1]))   #Criamos um objeto referente ao registrador que receberá o valor da operação
+        rB = GSRegMem(B_R,int(instructionList[2][1])).getRegMem()   #Como o segundo e terceiro regs contem os valore que serão operados, buscamos seus valores
+        rC = GSRegMem(B_R,int(instructionList[3][1])).getRegMem()
+
+        rA.setRegMem(function(rB,rC))   #Seta o valor no arquivo B_R referente a função executada
+
+
