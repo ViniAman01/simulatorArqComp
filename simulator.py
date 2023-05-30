@@ -11,22 +11,23 @@ def add(a,b): return a+b #Funções aritmeticas/logicas para executar instruçõ
 def sub(a,b): return a-b
 def anD(a,b): return a & b
 def oR(a,b): return a | b
-def load(regX,memX): 
-    print(regX)
-    print(memX)
-    reg = GSRegMem(B_R,regX)
-    mem = GSRegMem(M_R,memX) 
-    print(mem.getRegMem())
+def load(regAdr,memAdr): 
+    reg = GSRegMem(B_R,regAdr)
+    mem = GSRegMem(M_R,memAdr) 
     reg.setRegMem(mem.getRegMem())
-def store(memX,regX):
-    mem = GSRegMem(M_R,memX) 
-    reg = GSRegMem(B_R,regX)
+def store(memAdr,regAdr):
+    mem = GSRegMem(M_R,memAdr) 
+    reg = GSRegMem(B_R,regAdr)
     mem.setRegMem(reg.getRegMem())
+def move(regValueA,regValueB):
+    regA = GSRegMem(B_R,regValueA)
+    regB = GSRegMem(B_R,regValueB)
+    regA.setRegMem(regB.getRegMem())
 
 dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         "LOAD": load,
         "STORE": store,
-        #"MOVE": move,
+        "MOVE": move,
         "ADD": add,
         "SUB": sub,
         "AND": anD,
@@ -103,7 +104,7 @@ def getAdr(name: str):
     else:
         return int(name)
 
-def execInstructionsL(instructionLine: str):    #Executa determinada instrução da ALU contendo dois valores
+def execInstruction(instructionLine: str):    #Executa determinada instrução da ALU contendo dois valores
     instructionList = instructionLine.split(" ")    #Divide a linha em vários tokens
     numTokens = len(instructionList)-1      #Contabiliza o número de parametros
 
@@ -118,15 +119,9 @@ def execInstructionsL(instructionLine: str):    #Executa determinada instrução
         rA.setRegMem(function(rB,rC))   #Seta o valor no arquivo B_R referente a função executada
 
     if numTokens == 2: 
-        print(instructionList)
         function = dictInstructions[instructionList[0]]
-        print(getAdr(instructionList[1]))
-        print(getAdr(instructionList[2]))
-        print()
         function(getAdr(instructionList[1]), getAdr(instructionList[2]))
 
 txt = IOFiles(EN).readTxt()
-execInstructionAL(txt[0])
-execInstructionAL(txt[1])
-execInstructionAL(txt[2])
-execInstructionAL(txt[3])
+for inst in txt:
+    execInstruction(inst)
