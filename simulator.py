@@ -58,7 +58,7 @@ class IOFiles: #Classe para manipulação de arquivos
         except IOError:
             print("Erro na leitura do arquivo!")
 
-    def writeTxt(self, value: List):
+    def writeTxt(self, value: List):    #Escreve no arquivo self.name
         try:
             with open(self.name,"w+") as f:
                 f.writelines(value)
@@ -82,8 +82,8 @@ class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda I
             return False
 
     def setRegMem(self,value):
-        auxTxt = self.readTxt() #Pega atual estado dos registradores
-        lineTxt = auxTxt[self.adr].split(" ")
+        auxTxt = self.readTxt() #Pega atual estado dos registradores ou memoria
+        lineTxt = auxTxt[self.adr].split(" ")   #Split a linha do endereço em uma lista
 #       if not auxTxt: #Caso o arquivo esteja vazio, a tupla contendo os registrados é usada
 #           if self.name == B_R:
 #               auxTxt = list(tupleRegisters)
@@ -95,10 +95,10 @@ class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda I
 
 #                startM_R.writeTxt(memList)
 
-        auxTxt[self.adr] = lineTxt[0] + " " + str(value) + "\n"
-        self.writeTxt(auxTxt)
+        auxTxt[self.adr] = lineTxt[0] + " " + str(value) + "\n" #Concatena o valor com os resto da string e adiciona ao respectivo endereço
+        self.writeTxt(auxTxt)   #Escreve a lista no arquivo
 
-def getAdr(name: str):
+def getAdr(name: str):      #Pega o endereço(inteiro) de um registrador ou memoria
     if name.count("R"):
         return int(name[1])
     else:
@@ -115,13 +115,19 @@ def execInstruction(instructionLine: str):    #Executa determinada instrução d
         rA = GSRegMem(B_R, int(instructionList[1][1]))   #Criamos um objeto referente ao registrador que receberá o valor da operação
         rB = GSRegMem(B_R, int(instructionList[2][1])).getRegMem()   #Como o segundo e terceiro regs contem os valore que serão operados, buscamos seus valores
         rC = GSRegMem(B_R, int(instructionList[3][1])).getRegMem()
+        
+        valueALU = function(rB,rC)
 
-        rA.setRegMem(function(rB,rC))   #Seta o valor no arquivo B_R referente a função executada
+        rA.setRegMem(valueALU)   #Seta o valor no arquivo B_R referente a função executada
+
+        return valueALU
 
     if numTokens == 2: 
         function = dictInstructions[instructionList[0]]
-        function(getAdr(instructionList[1]), getAdr(instructionList[2]))
+        valueALU = function(getAdr(instructionList[1]), getAdr(instructionList[2]))
+        return valueALU
 
 txt = IOFiles(EN).readTxt()
-for inst in txt:
-    execInstruction(inst)
+for i in range(3):
+    for inst in txt:
+        execInstruction(inst)
