@@ -12,8 +12,11 @@ def sub(a,b): return a-b
 def anD(a,b): return a & b
 def oR(a,b): return a | b
 def load(regX,memX): 
+    print(regX)
+    print(memX)
     reg = GSRegMem(B_R,regX)
     mem = GSRegMem(M_R,memX) 
+    print(mem.getRegMem())
     reg.setRegMem(mem.getRegMem())
 def store(memX,regX):
     mem = GSRegMem(M_R,memX) 
@@ -48,20 +51,19 @@ class IOFiles: #Classe para manipulação de arquivos
         self.name = name
 
     def readTxt(self): #Retorna conteúdo do arquivo em str
-    #FAZER TRATAMENTO DE ERROS
-        with open(self.name) as f:
-            return f.readlines()
+        try:
+            with open(self.name,"r+") as f:
+                return f.readlines()
+        except IOError:
+            print("Erro na leitura do arquivo!")
 
     def writeTxt(self, value: List):
-        with open(self.name,"w+") as f:
-            f.writelines(value)
+        try:
+            with open(self.name,"w+") as f:
+                f.writelines(value)
+        except IOError:
+            print("Erro na escrita do arquivo!")
 
-startM_R = IOFiles(M_R)
-memList = []
-for i in range(33):
-    memList.append(str(i)+": \n")
-
-startM_R.writeTxt(memList)
 
 class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda IOFiles
     def __init__(self, name: str, adr: int): #Nome do arquivo + endereço reg/ram
@@ -71,18 +73,28 @@ class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda I
          
     def getRegMem(self):
         auxTxt = self.readTxt()
+        lineTxt = auxTxt[self.adr].split(" ")
         if auxTxt:
-            return int(auxTxt[self.adr][4:]) #Retorna inteiro referente ao conteudo do endereço(adr)
+            return int(lineTxt[1]) #Retorna inteiro referente ao conteudo do endereço(adr)
         else:
             print("Banco vazio!")
             return False
 
     def setRegMem(self,value):
         auxTxt = self.readTxt() #Pega atual estado dos registradores
-        if not auxTxt: #Caso o arquivo esteja vazio, a tupla contendo os registrados é usada
-            auxTxt = list(tupleRegisters)
+        lineTxt = auxTxt[self.adr].split(" ")
+#       if not auxTxt: #Caso o arquivo esteja vazio, a tupla contendo os registrados é usada
+#           if self.name == B_R:
+#               auxTxt = list(tupleRegisters)
+#           if self.name == M_R:
+#               startM_R = IOFiles(M_R)
+#                memList = []
+#                for i in range(33):
+#                    memList.append(str(i)+": \n")
 
-        auxTxt[self.adr] = auxTxt[self.adr][:4] + str(value)  + auxTxt[self.adr][-1:] #Concatena o valor desejado com o começo e fim da linha do reg/mem
+#                startM_R.writeTxt(memList)
+
+        auxTxt[self.adr] = lineTxt[0] + " " + str(value) + "\n"
         self.writeTxt(auxTxt)
 
 def getAdr(name: str):
@@ -91,11 +103,7 @@ def getAdr(name: str):
     else:
         return int(name)
 
-def getInstructions(inputTxt: List[str]): #Splita as instruções em uma lista
-    instructionsInput = inputTxt.splitlines()
-    return instructionsInput
-
-def execInstructionAL(instructionLine: str):    #Executa determinada instrução da ALU contendo dois valores
+def execInstructionsL(instructionLine: str):    #Executa determinada instrução da ALU contendo dois valores
     instructionList = instructionLine.split(" ")    #Divide a linha em vários tokens
     numTokens = len(instructionList)-1      #Contabiliza o número de parametros
 
@@ -110,8 +118,15 @@ def execInstructionAL(instructionLine: str):    #Executa determinada instrução
         rA.setRegMem(function(rB,rC))   #Seta o valor no arquivo B_R referente a função executada
 
     if numTokens == 2: 
+        print(instructionList)
         function = dictInstructions[instructionList[0]]
+        print(getAdr(instructionList[1]))
+        print(getAdr(instructionList[2]))
+        print()
         function(getAdr(instructionList[1]), getAdr(instructionList[2]))
 
 txt = IOFiles(EN).readTxt()
 execInstructionAL(txt[0])
+execInstructionAL(txt[1])
+execInstructionAL(txt[2])
+execInstructionAL(txt[3])
