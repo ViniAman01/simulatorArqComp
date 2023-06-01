@@ -23,6 +23,10 @@ def move(regValueA,regValueB):
     regA = GSRegMem(B_R,regValueA)
     regB = GSRegMem(B_R,regValueB)
     regA.setRegMem(regB.getRegMem())
+def branch(adr): return adr
+def bneg(adr,cpuInfo): if cpuInfo.alu < 0: cpuInfo.pc = adr
+def bzero(adr,cpuInfo): if cpuInfo.alu == 0: cpuInfo.pc = adr
+def halt(cpuInfo): cpuInfo.pc = 32
 
 dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         "LOAD": load,
@@ -32,9 +36,9 @@ dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         "SUB": sub,
         "AND": anD,
         "OR": oR,
-        #"BRANCH": branch,
-        #"BZERO": bzero,
-        #"BNEG": bneg,
+        "BRANCH": branch,
+        "BZERO": bzero,
+        "BNEG": bneg,
         #"NOP": nop,
         #"HALT": halt
         }
@@ -46,6 +50,11 @@ tupleRegisters = ( #Tupla contendo configuração inicial dos registradores
         "R3: 0\n",
         )
 
+class CPUInfo:
+    def __init__(pc: int, ir=None, alu=None):
+        self.pc = pc
+        self.alu = alu
+        self.ir = ir
 
 class IOFiles: #Classe para manipulação de arquivos
     def __init__(self, name: str):
@@ -104,11 +113,12 @@ def getAdr(name: str):      #Pega o endereço(inteiro) de um registrador ou memo
     else:
         return int(name)
 
-def execInstruction(instructionLine: str):    #Executa determinada instrução da ALU contendo dois valores
+def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada instrução da ALU contendo dois valores
     instructionList = instructionLine.split(" ")    #Divide a linha em vários tokens
     numTokens = len(instructionList)-1      #Contabiliza o número de parametros
 
     #A partir daqui teremos diferentes grupos de instruções sendo executados de acordo com seu número de parametros
+    cpuInfo.ir = instructionList[0] #Atualiza o valor do IR
 
     if numTokens == 3:  #Com 3 parametros sabe-se que será executado uma instrução lógica/aritmética
         function = dictInstructions[instructionList[0]]     #O primeiro token define a função, que será buscada no dicionario de instruções
@@ -116,18 +126,22 @@ def execInstruction(instructionLine: str):    #Executa determinada instrução d
         rB = GSRegMem(B_R, int(instructionList[2][1])).getRegMem()   #Como o segundo e terceiro regs contem os valore que serão operados, buscamos seus valores
         rC = GSRegMem(B_R, int(instructionList[3][1])).getRegMem()
         
-        valueALU = function(rB,rC)
+        cpuInfo.alu = function(rB,rC)
 
-        rA.setRegMem(valueALU)   #Seta o valor no arquivo B_R referente a função executada
-
-        return valueALU
+        rA.setRegMem(cpuInfo.alu)   #Seta o valor no arquivo B_R referente a função executada
 
     if numTokens == 2: 
         function = dictInstructions[instructionList[0]]
-        valueALU = function(getAdr(instructionList[1]), getAdr(instructionList[2]))
-        return valueALU
+        cpuInfo.alu = function(getAdr(instructionList[1]), getAdr(instructionList[2]))
 
-txt = IOFiles(EN).readTxt()
-for i in range(3):
-    for inst in txt:
-        execInstruction(inst)
+    if numTokens == 1:
+        function = dictInstructions[instructionList[0]]
+        cpuInfo.alu = function(instructionList[1],cpuInfo)
+
+    if numTokens == 0:
+
+
+instructions = IOFiles(EN).readTxt()
+cpuInfo = CPUInfo(0)
+while cpuInfo.pc < 32:
+    execInstruction(instructions[cpuInfo.pc],cpuInfo)
