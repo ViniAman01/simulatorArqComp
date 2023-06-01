@@ -14,19 +14,31 @@ def oR(a,b): return a | b
 def load(regAdr,memAdr): 
     reg = GSRegMem(B_R,regAdr)
     mem = GSRegMem(M_R,memAdr) 
-    reg.setRegMem(mem.getRegMem())
+    memVal = mem.getRegMem()
+    reg.setRegMem(memVal)
+    return memVal
 def store(memAdr,regAdr):
     mem = GSRegMem(M_R,memAdr) 
     reg = GSRegMem(B_R,regAdr)
-    mem.setRegMem(reg.getRegMem())
+    regVal = reg.getRegMem()
+    mem.setRegMem(regVal)
+    return regVal
 def move(regValueA,regValueB):
     regA = GSRegMem(B_R,regValueA)
     regB = GSRegMem(B_R,regValueB)
-    regA.setRegMem(regB.getRegMem())
+    regBVal = regB.getRegMem()
+    regA.setRegMem(regBVal)
+    return regBVal
 def branch(adr): return adr
-def bneg(adr,cpuInfo): if cpuInfo.alu < 0: cpuInfo.pc = adr
-def bzero(adr,cpuInfo): if cpuInfo.alu == 0: cpuInfo.pc = adr
-def halt(cpuInfo): cpuInfo.pc = 32
+def bneg(adr,cpuInfo): 
+    if cpuInfo.alu < 0: 
+        cpuInfo.pc = adr
+def bzero(adr,cpuInfo): 
+    if cpuInfo.alu == 0: 
+        cpuInfo.pc = adr
+def halt(cpuInfo): 
+    cpuInfo.pc = 32
+def nop(): pass
 
 dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         "LOAD": load,
@@ -39,8 +51,8 @@ dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         "BRANCH": branch,
         "BZERO": bzero,
         "BNEG": bneg,
-        #"NOP": nop,
-        #"HALT": halt
+        "NOP": nop,
+        "HALT\n": halt
         }
 
 tupleRegisters = ( #Tupla contendo configuração inicial dos registradores
@@ -51,7 +63,7 @@ tupleRegisters = ( #Tupla contendo configuração inicial dos registradores
         )
 
 class CPUInfo:
-    def __init__(pc: int, ir=None, alu=None):
+    def __init__(self,pc: int, ir: str, alu=0):
         self.pc = pc
         self.alu = alu
         self.ir = ir
@@ -114,6 +126,8 @@ def getAdr(name: str):      #Pega o endereço(inteiro) de um registrador ou memo
         return int(name)
 
 def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada instrução da ALU contendo dois valores
+    print("alu=",cpuInfo.alu)
+    print("pc=",cpuInfo.pc)
     instructionList = instructionLine.split(" ")    #Divide a linha em vários tokens
     numTokens = len(instructionList)-1      #Contabiliza o número de parametros
 
@@ -139,9 +153,12 @@ def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada inst
         cpuInfo.alu = function(instructionList[1],cpuInfo)
 
     if numTokens == 0:
+        function = dictInstructions[instructionList[0]]
+        function(cpuInfo)
 
 
 instructions = IOFiles(EN).readTxt()
-cpuInfo = CPUInfo(0)
+cpuInfo = CPUInfo(pc=0,ir=instructions[0],alu=0)
 while cpuInfo.pc < 32:
     execInstruction(instructions[cpuInfo.pc],cpuInfo)
+    cpuInfo.pc = int(cpuInfo.pc) + 1
