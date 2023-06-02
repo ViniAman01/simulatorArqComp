@@ -1,6 +1,7 @@
 #!/bin/python3
 
 from typing import List #Permite declaração de tipagem de listas
+import pdb
 
 B_R = "banco_registradores.txt" #Constantes para os nomes dos arquivos
 EN = "entrada.txt"
@@ -14,7 +15,10 @@ def oR(a,b): return a | b
 def load(regAdr,memAdr): 
     reg = GSRegMem(B_R,regAdr)
     mem = GSRegMem(M_R,memAdr) 
+    print("regAdr=",regAdr)
+    print("memAdr=",memAdr)
     memVal = mem.getRegMem()
+    print("memVal=",memVal)
     reg.setRegMem(memVal)
     return memVal
 def store(memAdr,regAdr):
@@ -126,13 +130,11 @@ def getAdr(name: str):      #Pega o endereço(inteiro) de um registrador ou memo
         return int(name)
 
 def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada instrução da ALU contendo dois valores
-    print("alu=",cpuInfo.alu)
-    print("pc=",cpuInfo.pc)
+    cpuInfo.ir = instructionLine #Atualiza o valor do IR
     instructionList = instructionLine.split(" ")    #Divide a linha em vários tokens
     numTokens = len(instructionList)-1      #Contabiliza o número de parametros
 
     #A partir daqui teremos diferentes grupos de instruções sendo executados de acordo com seu número de parametros
-    cpuInfo.ir = instructionList[0] #Atualiza o valor do IR
 
     if numTokens == 3:  #Com 3 parametros sabe-se que será executado uma instrução lógica/aritmética
         function = dictInstructions[instructionList[0]]     #O primeiro token define a função, que será buscada no dicionario de instruções
@@ -150,13 +152,13 @@ def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada inst
 
     if numTokens == 1:
         function = dictInstructions[instructionList[0]]
-        cpuInfo.alu = function(instructionList[1],cpuInfo)
+        function(int(instructionList[1])-2,cpuInfo) #Como o PC vai ser somado em 1 ao voltar pro while e as instruções seguem o inicio 0, subtraimos por 2 o valor de bneg, branch ou bzero
 
     if numTokens == 0:
         function = dictInstructions[instructionList[0]]
         function(cpuInfo)
 
-
+pdb.set_trace()
 instructions = IOFiles(EN).readTxt()
 cpuInfo = CPUInfo(pc=0,ir=instructions[0],alu=0)
 while cpuInfo.pc < 32:
