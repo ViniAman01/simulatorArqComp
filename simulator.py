@@ -1,6 +1,7 @@
 #!/bin/python3
 
 from typing import List #Permite declaração de tipagem de listas
+import os
 import pdb
 
 B_R = "banco_registradores.txt" #Constantes para os nomes dos arquivos
@@ -12,13 +13,10 @@ def add(a,b): return a+b #Funções aritmeticas/logicas para executar instruçõ
 def sub(a,b): return a-b
 def anD(a,b): return a & b
 def oR(a,b): return a | b
-def load(regAdr,memAdr): 
+def load(regAdr,memAdr): #Função de carregamento de dados da memoria para os registradores 
     reg = GSRegMem(B_R,regAdr)
     mem = GSRegMem(M_R,memAdr) 
-    print("regAdr=",regAdr)
-    print("memAdr=",memAdr)
     memVal = mem.getRegMem()
-    print("memVal=",memVal)
     reg.setRegMem(memVal)
     return memVal
 def store(memAdr,regAdr):
@@ -59,13 +57,6 @@ dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         "HALT\n": halt
         }
 
-tupleRegisters = ( #Tupla contendo configuração inicial dos registradores
-        "R0: 0\n",
-        "R1: 0\n",
-        "R2: 0\n",
-        "R3: 0\n",
-        )
-
 class CPUInfo:
     def __init__(self,pc: int, ir: str, alu=0):
         self.pc = pc
@@ -75,17 +66,26 @@ class CPUInfo:
 class IOFiles: #Classe para manipulação de arquivos
     def __init__(self, name: str):
         self.name = name
+        
+        if not os.path.exists(self.name): #Caso o arquivo não exista ele vai ser criado e inicializado
+            startText = []
+            with open(self.name,"w+") as f:
+                if self.name == B_R:
+                    for i in range(4):
+                        startText.append("R"+str(i)+": 0\n")
+
+            self.writeTxt(startText)
 
     def readTxt(self): #Retorna conteúdo do arquivo em str
         try:
-            with open(self.name,"r+") as f:
+            with open(self.name) as f:
                 return f.readlines()
         except IOError:
             print("Erro na leitura do arquivo!")
 
     def writeTxt(self, value: List):    #Escreve no arquivo self.name
         try:
-            with open(self.name,"w+") as f:
+            with open(self.name,"w") as f:
                 f.writelines(value)
         except IOError:
             print("Erro na escrita do arquivo!")
@@ -109,17 +109,6 @@ class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda I
     def setRegMem(self,value):
         auxTxt = self.readTxt() #Pega atual estado dos registradores ou memoria
         lineTxt = auxTxt[self.adr].split(" ")   #Split a linha do endereço em uma lista
-#       if not auxTxt: #Caso o arquivo esteja vazio, a tupla contendo os registrados é usada
-#           if self.name == B_R:
-#               auxTxt = list(tupleRegisters)
-#           if self.name == M_R:
-#               startM_R = IOFiles(M_R)
-#                memList = []
-#                for i in range(33):
-#                    memList.append(str(i)+": \n")
-
-#                startM_R.writeTxt(memList)
-
         auxTxt[self.adr] = lineTxt[0] + " " + str(value) + "\n" #Concatena o valor com os resto da string e adiciona ao respectivo endereço
         self.writeTxt(auxTxt)   #Escreve a lista no arquivo
 
@@ -158,7 +147,6 @@ def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada inst
         function = dictInstructions[instructionList[0]]
         function(cpuInfo)
 
-pdb.set_trace()
 instructions = IOFiles(EN).readTxt()
 cpuInfo = CPUInfo(pc=0,ir=instructions[0],alu=0)
 while cpuInfo.pc < 32:
