@@ -31,14 +31,14 @@ def move(regValueA,regValueB):
     regBVal = regB.getRegMem()
     regA.setRegMem(regBVal)
     return regBVal
-def branch(adr): return adr
+def branch(adr): cpuInfo.pc = adr
 def bneg(adr,cpuInfo): 
     if cpuInfo.alu < 0: 
         cpuInfo.pc = adr
 def bzero(adr,cpuInfo): 
     if cpuInfo.alu == 0: 
         cpuInfo.pc = adr
-def halt(cpuInfo): pass
+def halt(): pass
 def nop(): pass
 
 dictInstructions = { #Dicionario contento as intruções a serem interpretadas
@@ -144,7 +144,7 @@ def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada inst
 
     if numTokens == 0:
         function = dictInstructions[instructionList[0]]
-        function(cpuInfo)
+        function()
 
 instructions = IOFiles(EN).readTxt()
 cpuInfo = CPUInfo(pc=0,ir=instructions[0],alu=0)

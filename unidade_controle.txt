@@ -1,2 +1,2 @@
-PC: 11
+PC: -1
 IR: HALT
