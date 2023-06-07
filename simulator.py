@@ -31,7 +31,7 @@ def move(regValueA,regValueB):
     regBVal = regB.getRegMem()
     regA.setRegMem(regBVal)
     return regBVal
-def branch(adr): cpuInfo.pc = adr
+def branch(adr,cpuInfo): cpuInfo.pc = adr
 def bneg(adr,cpuInfo): 
     if cpuInfo.alu < 0: 
         cpuInfo.pc = adr
@@ -140,19 +140,19 @@ def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada inst
 
     if numTokens == 1:
         function = dictInstructions[instructionList[0]]
-        function(int(instructionList[1])-2,cpuInfo) #Como o PC vai ser somado em 1 ao voltar pro while e as instruções seguem o inicio 0, subtraimos por 2 o valor de bneg, branch ou bzero
+        function(int(instructionList[1])-1,cpuInfo) #Como o PC vai ser somado em 1 ao voltar pro while e as instruções seguem o inicio 0, subtraimos por 2 o valor de bneg, branch ou bzero
 
     if numTokens == 0:
         function = dictInstructions[instructionList[0]]
         function()
 
+pdb.set_trace()
 instructions = IOFiles(EN).readTxt()
 cpuInfo = CPUInfo(pc=0,ir=instructions[0],alu=0)
 
 while cpuInfo.pc < 32 and cpuInfo.ir != "HALT\n":
     execInstruction(instructions[cpuInfo.pc],cpuInfo)
-    if cpuInfo.ir != "HALT\n":
-        cpuInfo.pc = int(cpuInfo.pc) + 1
+    cpuInfo.pc = int(cpuInfo.pc) + 1
 
 cpuInfoText = []
 cpuInfoText = ["PC: "+str(cpuInfo.pc)+"\n","IR: "+str(cpuInfo.ir)]
