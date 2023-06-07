@@ -2,7 +2,6 @@
 
 from typing import List #Permite declaração de tipagem de listas
 import os
-import pdb
 
 B_R = "banco_registradores.txt" #Constantes para os nomes dos arquivos
 EN = "entrada.txt"
@@ -146,7 +145,6 @@ def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada inst
         function = dictInstructions[instructionList[0]]
         function()
 
-pdb.set_trace()
 instructions = IOFiles(EN).readTxt()
 cpuInfo = CPUInfo(pc=0,ir=instructions[0],alu=0)
 
