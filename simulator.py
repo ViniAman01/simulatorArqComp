@@ -51,8 +51,8 @@ dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         "BRANCH": branch,
         "BZERO": bzero,
         "BNEG": bneg,
-        "NOP\n": nop,
-        "HALT\n": halt
+        "NOP": nop,
+        "HALT": halt
         }
 
 class CPUInfo:
