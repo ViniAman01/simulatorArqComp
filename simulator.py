@@ -51,8 +51,8 @@ dictInstructions = { #Dicionario contento as intruções a serem interpretadas
         "BRANCH": branch,
         "BZERO": bzero,
         "BNEG": bneg,
-        "NOP": nop,
-        "HALT": halt
+        "NOP\n": nop,
+        "HALT\n": halt
         }
 
 class CPUInfo:
@@ -67,10 +67,9 @@ class IOFiles: #Classe para manipulação de arquivos
         
         if not os.path.exists(self.name): #Caso o arquivo não exista ele vai ser criado e inicializado
             startText = []
-            with open(self.name,"w+") as f:
-                if self.name == B_R:
-                    for i in range(4):
-                        startText.append("R"+str(i)+": 0\n")
+            if self.name == B_R:
+                for i in range(4):
+                    startText.append("R"+str(i)+": 0\n")
 
             self.writeTxt(startText)
 
