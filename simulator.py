@@ -117,8 +117,8 @@ def getAdr(name: str):      #Pega o endereço(inteiro) de um registrador ou memo
         return int(name)
 
 def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada instrução da ALU contendo dois valores
-    cpuInfo.ir = instructionLine #Atualiza o valor do IR
     instructionList = instructionLine.split(" ")    #Divide a linha em vários tokens
+    cpuInfo.ir = instructionList[1] #Atualiza o valor do IR
     numTokens = len(instructionList)-2      #Contabiliza o número de parametros
 
     #A partir daqui teremos diferentes grupos de instruções sendo executados de acordo com seu número de parametros
@@ -150,7 +150,7 @@ if instructions:
     IOFiles(M_R).writeTxt(instructions)
     cpuInfo = CPUInfo(pc=0,ir=instructions[0],alu=0)
 
-    while cpuInfo.pc < 32 and cpuInfo.ir[4:] != "HALT\n":
+    while cpuInfo.pc < 32 and cpuInfo.ir != "HALT\n":
         execInstruction(instructions[cpuInfo.pc],cpuInfo)
         cpuInfo.pc = int(cpuInfo.pc) + 1
 
