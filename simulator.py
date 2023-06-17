@@ -96,8 +96,8 @@ class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda I
          
     def getRegMem(self):
         auxTxt = self.readTxt()
-        lineTxt = auxTxt[self.adr].split(" ")
         if auxTxt:
+            lineTxt = auxTxt[self.adr].split(" ")
             return int(lineTxt[1]) #Retorna inteiro referente ao conteudo do endereço(adr)
         else:
             print("Banco vazio!")
@@ -105,9 +105,10 @@ class GSRegMem(IOFiles): #Classe que opera sobre os registradores e ram, herda I
 
     def setRegMem(self,value):
         auxTxt = self.readTxt() #Pega atual estado dos registradores ou memoria
-        lineTxt = auxTxt[self.adr].split(" ")   #Split a linha do endereço em uma lista
-        auxTxt[self.adr] = lineTxt[0] + " " + str(value) + "\n" #Concatena o valor com os resto da string e adiciona ao respectivo endereço
-        self.writeTxt(auxTxt)   #Escreve a lista no arquivo
+        if auxTxt:
+            lineTxt = auxTxt[self.adr].split(" ")   #Split a linha do endereço em uma lista
+            auxTxt[self.adr] = lineTxt[0] + " " + str(value) + "\n" #Concatena o valor com os resto da string e adiciona ao respectivo endereço
+            self.writeTxt(auxTxt)   #Escreve a lista no arquivo
 
 def getAdr(name: str):      #Pega o endereço(inteiro) de um registrador ou memoria
     if name.count("R"):
@@ -118,39 +119,41 @@ def getAdr(name: str):      #Pega o endereço(inteiro) de um registrador ou memo
 def execInstruction(instructionLine: str, cpuInfo):    #Executa determinada instrução da ALU contendo dois valores
     cpuInfo.ir = instructionLine #Atualiza o valor do IR
     instructionList = instructionLine.split(" ")    #Divide a linha em vários tokens
-    numTokens = len(instructionList)-1      #Contabiliza o número de parametros
+    numTokens = len(instructionList)-2      #Contabiliza o número de parametros
 
     #A partir daqui teremos diferentes grupos de instruções sendo executados de acordo com seu número de parametros
 
     if numTokens == 3:  #Com 3 parametros sabe-se que será executado uma instrução lógica/aritmética
-        function = dictInstructions[instructionList[0]]     #O primeiro token define a função, que será buscada no dicionario de instruções
-        rA = GSRegMem(B_R, int(instructionList[1][1]))   #Criamos um objeto referente ao registrador que receberá o valor da operação
-        rB = GSRegMem(B_R, int(instructionList[2][1])).getRegMem()   #Como o segundo e terceiro regs contem os valore que serão operados, buscamos seus valores
-        rC = GSRegMem(B_R, int(instructionList[3][1])).getRegMem()
+        function = dictInstructions[instructionList[1]]     #O primeiro token define a função, que será buscada no dicionario de instruções
+        rA = GSRegMem(B_R, int(instructionList[2][1]))   #Criamos um objeto referente ao registrador que receberá o valor da operação
+        rB = GSRegMem(B_R, int(instructionList[3][1])).getRegMem()   #Como o segundo e terceiro regs contem os valore que serão operados, buscamos seus valores
+        rC = GSRegMem(B_R, int(instructionList[4][1])).getRegMem()
         
         cpuInfo.alu = function(rB,rC)
 
         rA.setRegMem(cpuInfo.alu)   #Seta o valor no arquivo B_R referente a função executada
 
     if numTokens == 2: 
-        function = dictInstructions[instructionList[0]]
-        cpuInfo.alu = function(getAdr(instructionList[1]), getAdr(instructionList[2]))
+        function = dictInstructions[instructionList[1]]
+        cpuInfo.alu = function(getAdr(instructionList[2]), getAdr(instructionList[3]))
 
     if numTokens == 1:
-        function = dictInstructions[instructionList[0]]
-        function(int(instructionList[1])-1,cpuInfo) #Como o PC vai ser somado em 1 ao voltar pro while e as instruções seguem o inicio 0, subtraimos por 2 o valor de bneg, branch ou bzero
+        function = dictInstructions[instructionList[1]]
+        function(int(instructionList[2])-1,cpuInfo) #Como o PC vai ser somado em 1 ao voltar pro while e as instruções seguem o inicio 0, subtraimos por 2 o valor de bneg, branch ou bzero
 
     if numTokens == 0:
-        function = dictInstructions[instructionList[0]]
+        function = dictInstructions[instructionList[1]]
         function()
 
 instructions = IOFiles(EN).readTxt()
-cpuInfo = CPUInfo(pc=0,ir=instructions[0],alu=0)
+if instructions:
+    IOFiles(M_R).writeTxt(instructions)
+    cpuInfo = CPUInfo(pc=0,ir=instructions[0],alu=0)
 
-while cpuInfo.pc < 32 and cpuInfo.ir != "HALT\n":
-    execInstruction(instructions[cpuInfo.pc],cpuInfo)
-    cpuInfo.pc = int(cpuInfo.pc) + 1
+    while cpuInfo.pc < 32 and cpuInfo.ir[4:] != "HALT\n":
+        execInstruction(instructions[cpuInfo.pc],cpuInfo)
+        cpuInfo.pc = int(cpuInfo.pc) + 1
 
-cpuInfoText = []
-cpuInfoText = ["PC: "+str(cpuInfo.pc)+"\n","IR: "+str(cpuInfo.ir)]
-IOFiles(U_C).writeTxt(cpuInfoText)
+    cpuInfoText = []
+    cpuInfoText = ["PC: "+str(cpuInfo.pc)+"\n","IR: "+str(cpuInfo.ir)]
+    IOFiles(U_C).writeTxt(cpuInfoText)

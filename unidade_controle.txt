@@ -1,2 +1,2 @@
 PC: 22
-IR: HALT
+IR: 21: HALT
