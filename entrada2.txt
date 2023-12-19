@@ -1,7 +1,0 @@
-0: LOAD R0 5
-1: LOAD R1 6
-2: ADD R0 R0 R1
-3: NOP
-4: HALT
-5: 2
-6: 2
