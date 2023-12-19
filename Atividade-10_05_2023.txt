@@ -1,0 +1,86 @@
+Autor: Vinicius Silva Amâncio
+
+1) Resposta: O programa subtrai o conteúdo do registrador R0 com o próprio registrador R0 e armazena o resultado n registrador R1. Após isso carrega no registrador R1 o conteúdo da
+memória principal que está no endereço 5. Depois soma o conteúdo do registrador R0 com o registrador R1 e armazena o resultado no registrador R0. O valor do Program Counter é alterado 
+para 2 com isso vamos para o endereço 2 fazendo uma nova adição entre os registradores R0 e R1 e armazenando o valor no registrador R0, ficando em looping indefinidamente, entre os 
+endereços 2 e 3.
+
+2) Resposta: 
+
+0: LOAD R0 30
+1: LOAD R1 31
+2: ADD R0 R0 R1
+3: LOAD R2 11
+4: LOAD R3 10
+5: ADD R3 R3 R2
+6: STORE 11 R3
+7: STORE 30 R0
+8: BNEG 0
+9: HALT
+10: (VALOR A SER MULTIPLICADO)
+11: (VALOR A SER MULTIPLICADO/RESULTADO FINAL)
+30: -3
+31: 1
+
+O valor a ser multiplicado deve ser colocado no endereço 10 e 11.
+O resultado final vai ser apresentado no endereço 11 da memória principal.
+
+3) Resposta:
+
+0: LOAD R0 31
+1: LOAD R1 28
+2: SUB R0 R1 R0
+3: LOAD R1 30
+4: ADD R0 R1 R0
+5: LOAD R1 29
+6: LOAD R2 27
+7: ADD R2 R2 R1
+8: STORE 27 R2
+9: STORE 31 R0
+10 BNEG 3
+11: HALT
+27: (RESULTADO FINAL)
+28: 0
+29: 1
+30: 11
+31: (TOTAL DE KG)
+
+O total de KG deve ser colocado no endereço 31. O resultado final vai ser apresentado no endereço 31.
+
+
+4) Questão proposta: Faça um algoritmo que calcule uma pontência, dada uma base e um expoente.
+
+0: LOAD R0 30
+1: LOAD R1 31
+2: ADD R0 R0 R1
+3: LOAD R2 11
+4: LOAD R3 10
+5: ADD R3 R3 R2
+6: STORE 11 R3
+7: STORE 30 R0
+8: BNEG 0
+9: BRANCH 12
+10: (BASE DA POTÊNCIA)
+11: (BASE DA POTÊNCIA)
+12: LOAD R1 28
+13: LOAD R2 29
+14: ADD R1 R1 R2
+15: LOAD R2 27
+16: STORE 30 R2
+17: LOAD R3 11
+18: STORE 10 R3
+19: STORE 28 R1 
+20: BNEG 0
+21: HALT
+27: (BASE DA POTÊNCIA SUBTRAIDO 1 E TORNADA NEGATIVA)
+28: (EXPOENTE DA POTÊNCIA SUBTRAIDO 1 E TORNADO NEGATIVO)
+29: 1
+30: (BASE DA POTÊNCIA SUBTRAIDA 1 E TORNADA NEGATIVA)
+31: 1
+
+Resposta: Um exemplo de uso desse algoritmo é o seguinte: queremos saber o resultado da potência 5³. 
+
+Passo a passo:
+> Primeiro nos endereços 10 e 11 colocamos o valor 5 que é a base da potência.
+> Nos endereços 27 e 30 colocamos o valor -4, que é o valor da base subtraido 1 e tornada negativa: 5 - 1 = 4 -> -4.
+> No endereço 28 colocamos -2, que é valor do expoente subtraido 1 e tornado negativo: 3 - 1 = 2 -> -2.  

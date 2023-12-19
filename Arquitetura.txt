@@ -1,0 +1,15 @@
+O diferencial do pipeline é a execução em paralelo. Logo o tempo de execução de um conjunto de instruções em pipeline é dado por:
+T = [k+(n-1)]*tau -> Formula 1
+sendo T o tempo total para execuntar o número n de instruções com uma quantidade de k estágios, tudo isso vezes tau que é o tempo de um estágio
+
+O tempo de ciclo de clock é dado pelo tempo do estágio mais demorado.
+
+1ns = 1*10⁻⁹s, vamos chamar esse tempo de T, sendo o tempo de um estágio.
+No intervalo de 1 segundo quantos estágios poderão ser executados? 1s/1ns = 10⁹ logo temos essa quantidade de estágios por segundo
+generalizando usando T, temos por segundo 1s/Tns, logo temos 10⁹/T estágios(ou clocks) por segundo, como em um pipeline temos uma instrução sendo finalizado a cada estágio(ou clock)
+podemos dizer que o números de instruções por segundo é dado por 10⁹/T, sendo T o tempo do estágio mais demorado, ou seja, o ciclo de clock. Trazendo para notação de milhões fazemos 
+(10⁹/10⁶)(1/T) que da 1000/T MIPS, que seria milhões de instruções por segundo. Essa abordagem é generalizada e exclui os primeiros estágios da primeira instrução, usando a formula 1
+conseguimos observar o número real de instruções, que exclui o valor dos primeiros estagios da primeira instrução, mais isso é desconsiderado pela notação de MIPS por ser um valor
+insignificante ao ser subtraido.
+
+Dado k = 5, T = 1s, tau = 2ns, determine o valor de n. Esse exercicios correlaciona todas a teoria vista anteriormente. 
